@@ -10,16 +10,16 @@
 
 <div id="app">
   <section id="start-screen" class="card">
-    <h1>NHN Cloud 자격증 모의고사</h1>
-    <p class="sub">제1회 기출문제 완벽 복원</p>
+    <h1 style="color:#007aff;">NHN Cloud 자격증 모의고사</h1>
+    <p style="color:#666; margin-bottom:30px;">제1회, 2회 기출문제 완벽 복원 (총 120문제 랜덤출제)</p>
     
     <div class="count-select">
       <button data-count="30" class="active">30문제 풀기</button>
-      <button data-count="60">60문제 (실전)</button>
+      <button data-count="60">60문제 풀기</button>
     </div>
     <div class="mode-select">
-      <button id="startExamBtn" class="primary">📝 실전 모드</button>
-      <button id="startPracticeBtn" class="practice">🎓 연습 모드 (즉시 해설)</button>
+      <button id="startExamBtn" class="primary">📝 실전 모드 (시간 제한 없음)</button>
+      <button id="startPracticeBtn" class="practice">🎓 연습 모드 (즉시 해설 확인)</button>
     </div>
     <div class="action-buttons">
       <button id="historyBtn" class="secondary">📂 오답노트 보관함</button>
@@ -30,13 +30,15 @@
     <div class="exam-header">
       <div style="display:flex; align-items:center; gap:10px;">
         <button id="exitToMainBtn" class="btn-quit">🏠 메인</button>
-        <span id="progress"></span>
+        <span id="progress" style="font-weight:bold; color:#007aff;"></span>
       </div>
       <span id="mode-badge" class="badge"></span>
       <button id="quitBtn" class="btn-quit">중도 제출</button>
     </div>
+    
     <h2 id="question-title"></h2>
     <ul id="options"></ul>
+    
     <div id="practice-feedback" class="hidden">
       <div id="feedback-msg" class="feedback-msg"></div>
       <div class="wrong-exp">
@@ -44,6 +46,7 @@
         <p id="feedback-explanation"></p>
       </div>
     </div>
+    
     <div class="nav">
       <button id="prevBtn">이전</button>
       <button id="checkAnswerBtn" class="check-btn hidden">정답 확인</button>
@@ -53,17 +56,17 @@
 
   <section id="result-screen" class="hidden card">
     <h2>시험 결과</h2>
-    <div id="score" class="score-text"></div>
+    <div id="score" style="text-align:center; padding:20px 0;"></div>
     <div id="category-stats"></div>
-    <h3>❌ 오답 리스트</h3>
+    <h3 style="margin-top:30px; color:#dc3545;">❌ 오답 리스트</h3>
     <div id="wrong-list"></div>
-    <button id="restartBtn" class="primary">메인으로</button>
+    <button id="restartBtn" class="primary" style="margin-top:20px;">메인으로 돌아가기</button>
   </section>
 
   <section id="history-screen" class="hidden card">
     <h2>📂 오답노트 기록</h2>
     <div id="history-sessions"></div>
-    <div class="nav">
+    <div class="nav" style="margin-top:20px;">
       <button id="backToStartBtn" class="primary">메인으로</button>
       <button id="clearHistoryBtn" class="danger">전체 삭제</button>
     </div>
@@ -73,7 +76,7 @@
     <div class="exam-header">
       <h2 id="detail-title">상세 보기</h2>
       <div style="display:flex; gap:5px;">
-        <button id="downloadTxtBtn" class="secondary">💾 TXT 저장</button>
+        <button id="downloadTxtBtn" class="secondary" style="padding: 6px 12px; font-size: 0.9rem;">💾 TXT 저장</button>
         <button id="backToHistoryBtn" class="btn-quit">목록으로</button>
       </div>
     </div>
