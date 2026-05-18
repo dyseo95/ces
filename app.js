@@ -59,12 +59,14 @@ function startExam(practiceMode) {
 function renderQuestion() {
     const q = currentExamQuestions[currentIndex];
     document.getElementById('progress').innerText = `문제 ${currentIndex + 1} / ${currentExamQuestions.length}`;
-    document.getElementById('question-title').innerText = q.title;
+    document.getElementById('question-title').innerHTML = q.title;
+    
     document.getElementById('practice-feedback').classList.add('hidden');
     document.getElementById('checkAnswerBtn').classList.add('hidden');
     
     const nextBtn = document.getElementById('nextBtn');
     nextBtn.classList.remove('hidden');
+    
     const optionsList = document.getElementById('options');
     optionsList.innerHTML = '';
 
@@ -116,8 +118,8 @@ function checkAnswer() {
 
     const msgBox = document.getElementById('feedback-msg');
     const expBox = document.getElementById('feedback-explanation');
-    msgBox.innerHTML = isCorrect ? "<span class='msg-correct'>✅ 정답입니다!</span>" : "<span class='msg-wrong'>❌ 틀렸습니다.</span>";
-    expBox.innerText = q.explanation;
+    msgBox.innerHTML = isCorrect ? "<div class='msg-correct'>✅ 정답입니다!</div>" : "<div class='msg-wrong'>❌ 틀렸습니다.</div>";
+    expBox.innerHTML = q.explanation;
     
     document.getElementById('practice-feedback').classList.remove('hidden');
     document.getElementById('checkAnswerBtn').classList.add('hidden');
@@ -166,31 +168,35 @@ function finishExam() {
 
 function showResult(score, total, stats, wrongList) {
     showScreen(document.getElementById('result-screen'));
+    let percentage = Math.round((score/total)*100);
+    let badgeHtml = percentage >= 70 ? '<div class="pass-badge">🎉 합격 (PASS)</div>' : '<div class="fail-badge">😢 불합격 (FAIL)</div>';
+    
     document.getElementById('score').innerHTML = `
-        <div style="font-size:2rem; font-weight:bold; color:#007aff;">${Math.round((score/total)*100)}점</div>
-        <div>(총 ${total}문제 중 ${score}개 정답)</div>
+        ${badgeHtml}
+        <div style="font-size:2.5rem; font-weight:800; color:#007aff; margin-bottom:10px;">${percentage}점</div>
+        <div style="color:#666;">(총 ${total}문제 중 ${score}개 정답)</div>
     `;
 
     const statDiv = document.getElementById('category-stats');
-    statDiv.innerHTML = '<h4>📊 카테고리별 정답률</h4>';
+    statDiv.innerHTML = '<h4 style="margin-top:30px; border-bottom:2px solid #eee; padding-bottom:10px;">📊 카테고리별 정답률</h4>';
     for (const cat in stats) {
         const rate = Math.round((stats[cat].correct / stats[cat].total) * 100);
-        statDiv.innerHTML += `<div class="stat-item"><span>${cat}</span> <strong>${rate}%</strong></div>`;
+        statDiv.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;"><span>${cat}</span> <strong>${rate}%</strong></div>`;
     }
 
     const wrongDiv = document.getElementById('wrong-list');
     wrongDiv.innerHTML = '';
     if (wrongList.length === 0) {
-        wrongDiv.innerHTML = '<p style="text-align:center;">🎉 완벽합니다!</p>';
+        wrongDiv.innerHTML = '<p style="text-align:center; padding: 20px; font-weight:bold;">🎉 완벽합니다! 모든 문제를 맞히셨습니다.</p>';
     } else {
         wrongList.forEach(w => {
             const div = document.createElement('div');
             div.className = 'wrong-item';
             div.innerHTML = `
-                <div class="wrong-title">[${w.category}] ${w.title}</div>
-                <div class="wrong-detail" style="color:#ff4d4f;">❌ 내 선택: ${w.user}</div>
-                <div class="wrong-detail" style="color:#28a745;">✅ 정답: ${w.correct}</div>
-                <div class="wrong-exp">💡 ${w.exp}</div>
+                <div class="wrong-title"><span style="color:#007aff;">[${w.category}]</span> ${w.title}</div>
+                <div class="wrong-detail" style="color:#dc3545;">❌ 내 선택: ${w.user}</div>
+                <div class="wrong-detail" style="color:#28a745; margin-bottom:10px;">✅ 정답: ${w.correct}</div>
+                <div class="wrong-exp">💡 <strong>해설:</strong><br>${w.exp}</div>
             `;
             wrongDiv.appendChild(div);
         });
@@ -214,7 +220,7 @@ function showHistoryList() {
     container.innerHTML = '';
 
     if (sessions.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#666;">기록이 없습니다.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#666; padding:20px;">저장된 기록이 없습니다.</p>';
         return;
     }
 
@@ -222,8 +228,8 @@ function showHistoryList() {
         const item = document.createElement('div');
         item.className = 'session-item';
         item.innerHTML = `
-            <div class="session-info"><span class="session-title">${session.round}회차 (${session.date})</span></div>
-            <span class="session-score">${session.score}</span>
+            <div class="session-info"><span class="session-title" style="font-weight:bold;">[${session.mode}] ${session.round}회차 (${session.date})</span></div>
+            <span class="session-score" style="color:#007aff; font-weight:bold;">${session.score} 정답</span>
         `;
         item.onclick = () => showHistoryDetail(session);
         container.appendChild(item);
@@ -248,10 +254,10 @@ function showHistoryDetail(session) {
         const div = document.createElement('div');
         div.className = 'wrong-item';
         div.innerHTML = `
-            <div class="wrong-title">[${w.category}] ${w.title}</div>
-            <div class="wrong-detail" style="color:#ff4d4f;">❌ 내 선택: ${w.user}</div>
-            <div class="wrong-detail" style="color:#28a745;">✅ 정답: ${w.correct}</div>
-            <div class="wrong-exp">💡 ${w.exp}</div>
+            <div class="wrong-title"><span style="color:#007aff;">[${w.category}]</span> ${w.title}</div>
+            <div class="wrong-detail" style="color:#dc3545;">❌ 내 선택: ${w.user}</div>
+            <div class="wrong-detail" style="color:#28a745; margin-bottom:10px;">✅ 정답: ${w.correct}</div>
+            <div class="wrong-exp">💡 <strong>해설:</strong><br>${w.exp}</div>
         `;
         container.appendChild(div);
     });
