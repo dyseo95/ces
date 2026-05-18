@@ -42,8 +42,18 @@ document.addEventListener('DOMContentLoaded', () => {
 function startExam(practiceMode) {
     if (!window.questions || window.questions.length === 0) return alert("문제 데이터가 없습니다.");
     isPracticeMode = practiceMode;
+    
     const countBtn = document.querySelector('.count-select button.active');
-    const count = countBtn ? parseInt(countBtn.dataset.count) : 30;
+    let count = 30; // 기본값
+    
+    // ★ '전체 풀기(all)'를 선택했을 경우 모든 문제를 가져오도록 수정
+    if (countBtn) {
+        if (countBtn.dataset.count === 'all') {
+            count = window.questions.length;
+        } else {
+            count = parseInt(countBtn.dataset.count);
+        }
+    }
 
     currentExamQuestions = [...window.questions].sort(() => Math.random() - 0.5).slice(0, count);
     currentIndex = 0;
