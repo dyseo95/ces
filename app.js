@@ -40,19 +40,28 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function startExam(practiceMode) {
-    if (!window.questions || window.questions.length === 0) return alert("문제 데이터가 없습니다.");
-    isPracticeMode = practiceMode;
+    if (!window.questions || window.questions.length === 0) {
+        return alert("문제 데이터가 없습니다. 새로고침 후 다시 시도해주세요.");
+    }
     
+    isPracticeMode = practiceMode;
     const countBtn = document.querySelector('.count-select button.active');
     let count = 30; // 기본값
     
-    // ★ '전체 풀기(all)'를 선택했을 경우 모든 문제를 가져오도록 수정
     if (countBtn) {
-        if (countBtn.dataset.count === 'all') {
+        const val = countBtn.getAttribute('data-count');
+        if (val === 'all') {
             count = window.questions.length;
         } else {
-            count = parseInt(countBtn.dataset.count);
+            count = parseInt(val);
+            if (isNaN(count)) {
+                count = window.questions.length;
+            }
         }
+    }
+
+    if (count > window.questions.length) {
+        count = window.questions.length;
     }
 
     currentExamQuestions = [...window.questions].sort(() => Math.random() - 0.5).slice(0, count);
@@ -223,6 +232,7 @@ function saveSession(score, total, wrongList) {
     localStorage.setItem('nhn_exam_sessions', JSON.stringify(sessions));
 }
 
+// ★ 개별 삭제 버튼 조작을 위해 전면 전개 및 업데이트된 오답노트 리스트 출력 함수
 function showHistoryList() {
     showScreen(document.getElementById('history-screen'));
     const sessions = JSON.parse(localStorage.getItem('nhn_exam_sessions')) || [];
@@ -237,13 +247,38 @@ function showHistoryList() {
     sessions.forEach(session => {
         const item = document.createElement('div');
         item.className = 'session-item';
+        // 오답노트 박스 내 레이아웃 분리 및 우측 삭제 버튼 배치
         item.innerHTML = `
-            <div class="session-info"><span class="session-title" style="font-weight:bold;">[${session.mode}] ${session.round}회차 (${session.date})</span></div>
-            <span class="session-score" style="color:#007aff; font-weight:bold;">${session.score} 정답</span>
+            <div class="session-info">
+                <span class="session-title" style="font-weight:bold;">[${session.mode}] ${session.round}회차 (${session.date})</span>
+                <span class="session-score" style="color:#007aff; font-weight:bold; margin-left:15px;">${session.score} 정답</span>
+            </div>
+            <button class="btn-delete-single" style="background:#fff; border:1px solid #ff4d4f; color:#ff4d4f; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:0.85rem; font-weight:bold;">삭제</button>
         `;
+        
+        // 박스 자체를 누르면 상세 보기로 이동
         item.onclick = () => showHistoryDetail(session);
+        
+        // [삭제] 버튼 클릭 시 해당 기록만 지우는 로직 (이벤트 전파 방지 적용)
+        const delBtn = item.querySelector('.btn-delete-single');
+        delBtn.onclick = (e) => {
+            e.stopPropagation(); // 중요: 상세 페이지가 열리는 이벤트를 중간에 차단!
+            if (confirm(`${session.round}회차 기록을 보관함에서 삭제하시겠습니까?`)) {
+                deleteSingleHistory(session.id);
+            }
+        };
+        
         container.appendChild(item);
     });
+}
+
+// ★ 특정 오답노트 기록만 골라내어 삭제하는 새로운 함수
+function deleteSingleHistory(sessionId) {
+    let sessions = JSON.parse(localStorage.getItem('nhn_exam_sessions')) || [];
+    // 선택한 세션 ID를 제외한 데이터들만 남기기
+    sessions = sessions.filter(session => session.id !== sessionId);
+    localStorage.setItem('nhn_exam_sessions', JSON.stringify(sessions));
+    showHistoryList(); // 목록 새로고침
 }
 
 function clearAllHistory() {
